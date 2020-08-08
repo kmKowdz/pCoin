@@ -1,23 +1,33 @@
 const SHA256 = require("crypto-js/sha256");
 
 class Block{
+
     constructor(index, timestamp, data, previousHash = ''){
         this.index = index;
         this.timestamp = timestamp;
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.calculateHash();
+        this.nonce = 0;
     }
 
     calculateHash(){
-        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data)).toString();
+        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data) + this.nonce).toString();
     }
 
+    mineBlock(difficulty){
+        while(this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")){
+            this.nonce++;
+            this.hash = this.calculateHash();
+        }
+        console.log("Block mined: " + this.hash);
+    }
 }
 
 class Blockchain{
     constructor(){
         this.chain = [this.createGenesisBlock()];
+        this.difficulty = 4;
     }
 
     createGenesisBlock(){
@@ -30,7 +40,7 @@ class Blockchain{
 
     addBlock(newBlock){
         newBlock.previousHash = this.getLatestBlock().hash;
-        newBlock.hash = newBlock.calculateHash();
+        newBlock.mineBlock(this.difficulty);
         this.chain.push(newBlock);
     }
 
@@ -54,16 +64,9 @@ class Blockchain{
 }
 
 let pCoin = new Blockchain();
+
+console.log('Mining block 1...');
 pCoin.addBlock(new Block(1, "08/08/2020", {amount: 1000}));
+
+console.log('Mining block 2...');
 pCoin.addBlock(new Block(2, "08/09/2020", {amount: 10}));
-
-//check whether the blockchain is valid
-console.log("Is Blockchain valid? " + pCoin.isChainValid());
-
-//change the value of the coin and check if it is valid
-pCoin.chain[1].data = {amount: 20};
-pCoin.chain[1].hash = pCoin.chain[1].calculateHash();
-console.log("Is Blockchain valid? " + pCoin.isChainValid());
-
-
-//console.log(JSON.stringify(pCoin, null, 4));
