@@ -1,2 +1,3 @@
 # pCoin
-This is a simple Blockchain application for educational purposes only.
+This is a simple Blockchain application.
+For educational purposes only.
