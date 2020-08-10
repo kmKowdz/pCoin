@@ -4,7 +4,8 @@
   "description": "This is a simple blockchain project intended for educational purposes only.",
   "main": "main.js",
   "dependencies": {
-    "crypto-js": "^4.0.0"
+    "crypto-js": "^4.0.0",
+    "elliptic": "^6.5.3"
   },
   "devDependencies": {},
   "scripts": {
