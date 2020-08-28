@@ -63,8 +63,11 @@ pCoin.addBlock(new Block(2, "12/07/2017", {amount: 10}));
 //check whether the blockchain is valid
 console.log("Is Blockchain valid? " + pCoin.isChainValid());
 
-//try changing block 2
+//tamper the block
+//change the data
 pCoin.chain[1].data = { amount: 100 };
+//recalculate hash
+pCoin.chain[1].hash = pCoin.chain[1].calculateHash();
 
 //recheck if the blockchain is valid
 console.log("Is Blockchain valid? " + pCoin.isChainValid());
