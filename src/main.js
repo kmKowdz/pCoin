@@ -31,7 +31,7 @@ class Block{
             this.nonce++; //increment as long as the hash doesn't start with enough 0s
             this.hash = this.calculateHash();
         }
-        console.log("Block mined: " + this.hash);
+        console.log("BLOCK MINED: " + this.hash);
     }
 
 }
@@ -41,6 +41,7 @@ class Blockchain{
         this.chain = [this.createGenesisBlock()];
         this.difficulty = 2; //can be changed in the future
         this.pendingTransactions = [];
+        this.miningReward = 100;
     }
 
     createGenesisBlock(){
@@ -123,3 +124,8 @@ console.log('\n Starting the miner...');
 pCoin.minePendingTransactions('xaviers-address');
 
 console.log('\nBalance of xavier is', pCoin.getBalanceOfAddress('xaviers-address'));
+
+console.log('\nStarting the miner again...');
+pCoin.minePendingTransactions('xaviers-address');
+
+console.log('\n Balance of xavier is', pCoin.getBalanceOfAddress('xaviers-address'));
