@@ -1,5 +1,14 @@
 const SHA256 = require('crypto-js/sha256');
 
+//single transaction datatype
+class Transaction{
+    constructor(fromAddress, toAddress, amount){
+        this.fromAddress = fromAddress;
+        this.toAddress = toAddress;
+        this.amount = amount;
+    }
+}
+
 class Block{
     constructor(timestamp, transactions, previousHash = ''){
         this.previousHash = previousHash;
@@ -30,7 +39,8 @@ class Block{
 class Blockchain{
     constructor(){
         this.chain = [this.createGenesisBlock()];
-        this.difficulty = 4; //can be changed in the future
+        this.difficulty = 2; //can be changed in the future
+        this.pendingTransactions = [];
     }
 
     createGenesisBlock(){
@@ -41,10 +51,45 @@ class Blockchain{
         return this.chain[this.chain.length - 1];
     }
 
-    addBlock(newBlock){
-        newBlock.previousHash = this.getLatestBlock().hash;
-        newBlock.mineBlock(this.difficulty); //to calculate a hash different from the regular hash; used the difficulty as parameter to add difficulty in obtaining a hash with a nonce (leading 0s in front of the hash)
-        this.chain.push(newBlock);
+    //array of transactions waiting to be included in the block
+    minePendingTransactions(miningRewardAddress){
+        let block = new Block(Date.now(), this.pendingTransactions);
+        block.mineBlock(this.difficulty);
+
+        console.log('Block successfully mined!');
+        this.chain.push(block);
+
+        // will reset the pending transaction
+        // in the real world, this can be changed so that the miner can get themselves more coins
+        // since it is in p2p, nodes are not going to accept it and will just ignore you
+        this.pendingTransactions = [
+            new Transaction(null, miningRewardAddress, this.miningReward)
+        ];
+
+    }
+
+    //create a method that will add the transaction to the pending transaction array
+    createTransaction(transaction){
+        this.pendingTransactions.push(transaction);
+    }
+
+    //create a mechanism that checks the balance of a ceertain address 
+    getBalanceOfAddress(address){
+        let balance = 0;
+
+        for(const block of this.chain){
+            for(const trans of block.transactions){
+                if(trans.fromAddress === address){ //if you are the sender
+                    balance -= trans.amount; //decrease the amount of balance
+                }
+
+                if(trans.toAddress === address){ //if you are the receiver
+                    balance += trans.amount; //increase the amount of balance
+                }
+            }
+        }
+
+        return balance;
     }
 
     //to check the integrity of the chain
@@ -70,3 +115,11 @@ class Blockchain{
 }
 
 let pCoin = new Blockchain();
+
+pCoin.createTransaction(new Transaction('address1', 'address2', 100));
+pCoin.createTransaction(new Transaction('address2', 'address1', 50));
+
+console.log('\n Starting the miner...');
+pCoin.minePendingTransactions('xaviers-address');
+
+console.log('\nBalance of xavier is', pCoin.getBalanceOfAddress('xaviers-address'));
