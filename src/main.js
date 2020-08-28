@@ -1,11 +1,10 @@
 const SHA256 = require('crypto-js/sha256');
 
 class Block{
-    constructor(index, timestamp, data, previousHash = ''){
-        this.index = index;
-        this.timestamp = timestamp;
-        this.data = data;
+    constructor(timestamp, transactions, previousHash = ''){
         this.previousHash = previousHash;
+        this.timestamp = timestamp;
+        this.transactions = transactions;
         this.hash = this.calculateHash();
         this.nonce = 0; //a random no. that doesn't have anything to do with your block but it can be changed to something random
     }
@@ -35,7 +34,7 @@ class Blockchain{
     }
 
     createGenesisBlock(){
-        return new Block(0, "01/01/2017", "Genesis block", "0");
+        return new Block("01/01/2017", "Genesis block", "0");
     }
 
     getLatestBlock(){
@@ -71,9 +70,3 @@ class Blockchain{
 }
 
 let pCoin = new Blockchain();
-
-console.log('Mining block 1...');
-pCoin.addBlock(new Block(1, "20/07/2017", { amount: 4 }));
-
-console.log('Mining block 2...');
-pCoin.addBlock(new Block(2, "20/07/2017", { amount: 8 })); 
