@@ -7,10 +7,23 @@ class Block{
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.calculateHash();
+        this.nonce = 0; //a random no. that doesn't have anything to do with your block but it can be changed to something random
     }
 
     calculateHash(){
-        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data)).toString();
+        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data) + this.nonce).toString();
+    }
+
+    //add a proof of work to signify that you've put a lot of work in creating a block--also known as mining
+    //in bitcoin, mining requires the hash to begin with a certain amount of 0s 
+    //and because you can't influence the output of the hash function, you simply have to try a lot of combinations and hope to get
+    //lucky with a hash that has sufficient number of 0s in front of it; this requires a lot of computing power
+    mineBlock(difficulty){ //difficulty is set so that there is a steady amount of new blocks
+        while(this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")){ //keeps running until the hash starts with enough 0s
+            this.nonce++; //increment as long as the hash doesn't start with enough 0s
+            this.hash = this.calculateHash();
+        }
+        console.log("Block mined: " + this.hash);
     }
 
 }
@@ -18,6 +31,7 @@ class Block{
 class Blockchain{
     constructor(){
         this.chain = [this.createGenesisBlock()];
+        this.difficulty = 2; //can be changed in the future
     }
 
     createGenesisBlock(){
@@ -30,7 +44,7 @@ class Blockchain{
 
     addBlock(newBlock){
         newBlock.previousHash = this.getLatestBlock().hash;
-        newBlock.hash = newBlock.calculateHash();
+        newBlock.mineBlock(this.difficulty); //to calculate a hash different from the regular hash; used the difficulty as parameter to add difficulty in obtaining a hash with a nonce (leading 0s in front of the hash)
         this.chain.push(newBlock);
     }
 
@@ -57,17 +71,9 @@ class Blockchain{
 }
 
 let pCoin = new Blockchain();
-pCoin.addBlock(new Block(1, "10/07/2017", {amount: 4}));
-pCoin.addBlock(new Block(2, "12/07/2017", {amount: 10}));
 
-//check whether the blockchain is valid
-console.log("Is Blockchain valid? " + pCoin.isChainValid());
+console.log('Mining block 1...');
+pCoin.addBlock(new Block(1, "20/07/2017", { amount: 4 }));
 
-//tamper the block
-//change the data
-pCoin.chain[1].data = { amount: 100 };
-//recalculate hash
-pCoin.chain[1].hash = pCoin.chain[1].calculateHash();
-
-//recheck if the blockchain is valid
-console.log("Is Blockchain valid? " + pCoin.isChainValid());
+console.log('Mining block 2...');
+pCoin.addBlock(new Block(2, "20/07/2017", { amount: 8 })); 
