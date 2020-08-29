@@ -1,17 +1,22 @@
 //import the Blockchain and Transaction classes from blockchain.js
 const {Blockchain, Transaction} = require('./blockchain');
+// import elliptic library
+const EC = require('elliptic').ec;
+const ec = new EC('secp256k1');
+
+//initialize the myKey
+const myKey = ec.keyFromPrivate('0929633cbd7fdffad68313360eec7e880383ac9509e6875968d314ba84ba2d1e');
+const myWalletAddress = myKey.getPublic('hex');
+
 
 let pCoin = new Blockchain();
 
-pCoin.createTransaction(new Transaction('address1', 'address2', 100));
-pCoin.createTransaction(new Transaction('address2', 'address1', 50));
+//create a transaction
+const tx1 = new Transaction(myWalletAddress, 'public key goes here', 10);
+tx1.signTransaction(myKey);
+pCoin.addTransaction(tx1);
 
-console.log('\n Starting the miner...');
-pCoin.minePendingTransactions('xaviers-address');
+console.log('\nStarting the miner...');
+pCoin.minePendingTransactions(myWalletAddress);
 
-console.log('\nBalance of xavier is', pCoin.getBalanceOfAddress('xaviers-address'));
-
-console.log('\nStarting the miner again...');
-pCoin.minePendingTransactions('xaviers-address');
-
-console.log('\n Balance of xavier is', pCoin.getBalanceOfAddress('xaviers-address'));
+console.log('\nBalance of xavier is', pCoin.getBalanceOfAddress(myWalletAddress)); 
