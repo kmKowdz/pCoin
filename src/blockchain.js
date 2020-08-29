@@ -62,6 +62,17 @@ class Block{
         return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data) + this.nonce).toString();
     }
 
+    //verify all transactions in the current block 
+    hasValidTransactions(){
+        for(const tx of this.transactions){
+            if(!tx.isValid()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     //add a proof of work to signify that you've put a lot of work in creating a block--also known as mining
     //in bitcoin, mining requires the hash to begin with a certain amount of 0s 
     //and because you can't influence the output of the hash function, you simply have to try a lot of combinations and hope to get
@@ -109,8 +120,20 @@ class Blockchain{
 
     }
 
-    //create a method that will add the transaction to the pending transaction array
-    createTransaction(transaction){
+    //add the transaction to the pending transactions array
+    addTransaction(transaction){
+
+        //check if both the from address and to address are filled in
+        if(!transaction.fromAddress || !transaction.toAddress){
+            throw new Error('Transaction must include from and to address');
+        }
+
+        //verify if the transaction is valid
+        if(!transaction.isValid()){
+            throw new Error('Cannot add invalid transaction to chain');
+        }
+
+        //pass the transaction to the pendingtransactions array
         this.pendingTransactions.push(transaction);
     }
 
@@ -138,7 +161,12 @@ class Blockchain{
         for(let i = 1; i < this.chain.length; i++){
             const currentBlock = this.chain[i];
             const previousBlock = this.chain[i-1];
-            
+    
+            //check if the current block has valid transactions
+            if(!currentBlock.hasValidTransactions()){
+                return false;
+            }
+
             //check if the hash of the current block is not equal to the recalculcated hash
             if(currentBlock.hash !== currentBlock.calculateHash()){
                 return false;
