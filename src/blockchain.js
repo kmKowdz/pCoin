@@ -1,4 +1,6 @@
 const SHA256 = require('crypto-js/sha256');
+const EC = require('elliptic').ec;
+const ec = new EC('secp256k1');
 
 //single transaction datatype
 class Transaction{
@@ -6,6 +8,44 @@ class Transaction{
         this.fromAddress = fromAddress;
         this.toAddress = toAddress;
         this.amount = amount;
+    }
+
+    //add a function to sign the transactions for validity
+    //calculate the hash of the transaction
+    calculateHash(){
+        return SHA256(this.fromAddress + this.toAddress + this.amount).toString();
+    }
+
+    //sign the transaction
+    signTransaction(signingKey){ //signingkey will receive the object key from the keygenerator
+
+        //check if the public key equals the from address
+        if(signingKey.getPublic('hex') !== this.fromAddress){
+            throw new Error('You cannot sign transaction for other wallets!');
+        }
+
+        const hashTx = this.calculateHash();
+        const sig = signingKey.sign(hashTx,'base64');
+        this.signature = sig.toDER('hex');
+
+    }
+
+    //to verify if our transaction has been correctly signed
+    isValid(){
+
+        //check if the fromAddress is null in reference to the mining rewards parameter
+        if(this.fromAddress === null) return true;
+
+        //check if there is a signature for a transaction
+        if(!this.signature || this.signature.length === 0){
+            throw new Error('No signature in this transaction');
+        }
+
+        //if not null, then we need to check whether it contains the correct key
+        //create a new publicKey
+        const publicKey = ec.keyFromPublic(this.fromAddress, 'hex');
+        //verify that the hash has been signed by the signature
+        return publicKey.verify(this.calculateHash(), this.signature);
     }
 }
 
