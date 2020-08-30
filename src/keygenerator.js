@@ -9,4 +9,4 @@ console.log();
 console.log('Private Key: ', privateKey);
 
 console.log();
-console.log('Public Key: ', publicKey);
+console.log('Public Key: ', publicKey); 
