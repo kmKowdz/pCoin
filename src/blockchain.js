@@ -59,7 +59,7 @@ class Block{
     }
 
     calculateHash(){
-        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data) + this.nonce).toString();
+        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.transactions) + this.nonce).toString();
     }
 
     //verify all transactions in the current block 
@@ -72,7 +72,6 @@ class Block{
         return true;
     }
 
-
     //add a proof of work to signify that you've put a lot of work in creating a block--also known as mining
     //in bitcoin, mining requires the hash to begin with a certain amount of 0s 
     //and because you can't influence the output of the hash function, you simply have to try a lot of combinations and hope to get
@@ -82,7 +81,7 @@ class Block{
             this.nonce++; //increment as long as the hash doesn't start with enough 0s
             this.hash = this.calculateHash();
         }
-        console.log("BLOCK MINED: " + this.hash);
+        console.log('BLOCK MINED: ' + this.hash);
     }
 
 }
@@ -96,7 +95,7 @@ class Blockchain{
     }
 
     createGenesisBlock(){
-        return new Block("01/01/2017", "Genesis block", "0");
+        return new Block(Date.parse('2017-01-01'), [], '0');
     }
 
     getLatestBlock(){
@@ -105,19 +104,16 @@ class Blockchain{
 
     //array of transactions waiting to be included in the block
     minePendingTransactions(miningRewardAddress){
-        let block = new Block(Date.now(), this.pendingTransactions);
+        const rewardTx = new Transaction(null, miningRewardAddress, this.miningReward);
+        this.pendingTransactions.push(rewardTx);
+    
+        const block = new Block(Date.now(), this.pendingTransactions, this.getLatestBlock().hash);
         block.mineBlock(this.difficulty);
-
+    
         console.log('Block successfully mined!');
         this.chain.push(block);
-
-        // will reset the pending transaction
-        // in the real world, this can be changed so that the miner can get themselves more coins
-        // since it is in p2p, nodes are not going to accept it and will just ignore you
-        this.pendingTransactions = [
-            new Transaction(null, miningRewardAddress, this.miningReward)
-        ];
-
+    
+        this.pendingTransactions = [];
     }
 
     //add the transaction to the pending transactions array

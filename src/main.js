@@ -19,4 +19,4 @@ pCoin.addTransaction(tx1);
 console.log('\nStarting the miner...');
 pCoin.minePendingTransactions(myWalletAddress);
 
-console.log('\nBalance of xavier is', pCoin.getBalanceOfAddress(myWalletAddress)); 
+console.log('\nBalance of xavier is', pCoin.getBalanceOfAddress(myWalletAddress));
