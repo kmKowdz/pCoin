@@ -21,4 +21,6 @@ pCoin.minePendingTransactions(myWalletAddress);
 
 console.log('\nBalance of xavier is', pCoin.getBalanceOfAddress(myWalletAddress));
 
+pCoin.chain[1].transactions[0].amount = 1;
+
 console.log('Is chain valid?', pCoin.isChainValid());
