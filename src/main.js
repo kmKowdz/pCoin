@@ -8,7 +8,7 @@ const ec = new EC('secp256k1');
 const myKey = ec.keyFromPrivate('0929633cbd7fdffad68313360eec7e880383ac9509e6875968d314ba84ba2d1e');
 const myWalletAddress = myKey.getPublic('hex');
 
-
+//create an instance of the blockchain
 let pCoin = new Blockchain();
 
 //create a transaction
@@ -20,3 +20,5 @@ console.log('\nStarting the miner...');
 pCoin.minePendingTransactions(myWalletAddress);
 
 console.log('\nBalance of xavier is', pCoin.getBalanceOfAddress(myWalletAddress));
+
+console.log('Is chain valid?', pCoin.isChainValid());
