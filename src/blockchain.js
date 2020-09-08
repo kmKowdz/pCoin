@@ -7,13 +7,14 @@ class Transaction{
     constructor(fromAddress, toAddress, amount){
         this.fromAddress = fromAddress;
         this.toAddress = toAddress;
+        this.timestamp = Date.now();
         this.amount = amount;
     }
 
     //add a function to sign the transactions for validity
     //calculate the hash of the transaction
     calculateHash(){
-        return SHA256(this.fromAddress + this.toAddress + this.amount).toString();
+        return SHA256(this.fromAddress + this.toAddress + this.timestamp + this.amount).toString();
     }
 
     //sign the transaction
